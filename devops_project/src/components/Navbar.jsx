@@ -4,7 +4,7 @@ const Navbar = ({ darkMode, setDarkMode, scrollToSection, refs }) => {
   const toggleDarkMode = () => setDarkMode(!darkMode);
 
   const links = [
-    { name: "Dashboard", ref: refs.heroRef },
+    { name: "Home", ref: refs.heroRef },
     { name: "Why DevOps", ref: refs.inspirationRef },
     { name: "Tech Stack", ref: refs.toolsetRef },
     { name: "Why It Matters", ref: refs.necessityRef },
