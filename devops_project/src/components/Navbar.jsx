@@ -9,7 +9,7 @@ const Navbar = ({ darkMode, setDarkMode, scrollToSection, refs }) => {
     { name: "Tech Stack", ref: refs.toolsetRef },
     { name: "Why It Matters", ref: refs.necessityRef },
     { name: "Learning Roadmap", ref: refs.pathwayRef },
-    { name: "Cloud Mastery", ref: refs.awsRef },
+    { name: "AWS Cloud ", ref: refs.awsRef },
     { name: "Get in Touch", ref: refs.contactRef },
   ];
 
