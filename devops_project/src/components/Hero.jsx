@@ -50,7 +50,7 @@ const Hero = forwardRef((props, ref) => (
           <p className="mb-2 font-semibold text-lg">The Future of DevOps:</p>
           <ul className="list-disc list-inside space-y-1 text-gray-800 dark:text-gray-200">
             <li>Rapidly growing demand for DevOps professionals worldwide</li>
-            <li>Increased adoption of cloud-native and automated infrastructures</li>
+            <li>Increased adoption of cloud-native & automated infrastructures</li>
             <li>High-paying career opportunities in both startups and enterprises</li>
             <li>Integration of AI/ML in DevOps for smarter automation</li>
             <li>Continuous evolution of tools and practices ensuring long-term relevance</li>
