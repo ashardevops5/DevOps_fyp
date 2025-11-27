@@ -1,79 +1,30 @@
-name: DevOps React Frontend CI/CD
-
+name: CI/CD Pipeline
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ Checkout repo
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      # 2️⃣ Setup Node.js
-      - name: Setup Node.js
+      - name: Set up Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: 20
 
-      # 3️⃣ Cache node_modules (optional, faster builds)
-      - name: Cache node modules
-        uses: actions/cache@v3
-        with:
-          path: devops_project/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('devops_project/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      # 4️⃣ Install dependencies
-      - name: Install Dependencies
-        working-directory: ./devops_project
+      - name: Build Docker Image
         run: |
-          echo "Installing dependencies using npm ci..."
-          npm ci
+          docker build -t devopsfy-frontend .
 
-      # 5️⃣ Build React app
-      - name: Build React App
-        working-directory: ./devops_project
-        run: |
-          echo "Building React app..."
-          npm run build
-
-      # 6️⃣ Setup Docker Buildx
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      # 7️⃣ Docker login
-      - name: Docker Login
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # 8️⃣ Build & Push Docker Image
-      - name: Build & Push Docker Image
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest ./devops_project
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest
-
-      # 9️⃣ Deploy to EC2
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.6
+      - name: SSH & Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            echo "Pulling latest Docker image..."
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest
-
-            echo "Stopping old container (if any)..."
-            docker stop devops-frontend || true
-            docker rm devops-frontend || true
-
-            echo "Running new container..."
-            docker run -d --name devops-frontend -p 80:80 -p 443:443 ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest
+            docker stop frontend || true
+            docker rm frontend || true
+            docker run -d --name frontend -p 80:80 devopsfy-frontend
