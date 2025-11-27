@@ -68,15 +68,15 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # Docker full path fix
-            export PATH=$PATH:/usr/bin
+            # Ensure Docker command works via sudo to avoid permission denied
+            DOCKER_CMD="sudo docker"
 
             echo "Pulling latest Docker image..."
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest
+            $DOCKER_CMD pull ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest
 
             echo "Stopping old container (if any)..."
-            docker stop devops-frontend || true
-            docker rm devops-frontend || true
+            $DOCKER_CMD stop devops-frontend || true
+            $DOCKER_CMD rm devops-frontend || true
 
             echo "Running new container..."
-            docker run -d --name devops-frontend -p 80:80 -p 443:443 ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest
+            $DOCKER_CMD run -d --name devops-frontend -p 80:80 -p 443:443 ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest
