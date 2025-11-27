@@ -68,6 +68,9 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            # Docker full path fix
+            export PATH=$PATH:/usr/bin
+
             echo "Pulling latest Docker image..."
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest
 
