@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Menu, X } from "lucide-react"; // hamburger & close icons
+import { Menu, X, Sun, Moon } from "lucide-react"; // Icons
 
 const Navbar = ({ darkMode, setDarkMode, scrollToSection, refs }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+
   const toggleDarkMode = () => setDarkMode(!darkMode);
 
   const links = [
@@ -48,19 +49,17 @@ const Navbar = ({ darkMode, setDarkMode, scrollToSection, refs }) => {
             </button>
           ))}
 
+          {/* Dark Mode Toggle */}
           <button
             onClick={toggleDarkMode}
-            className="px-3 py-1 rounded-lg border border-indigo-400 dark:border-teal-400 hover:bg-indigo-500 hover:text-white dark:hover:bg-teal-400 transition"
+            className="p-2 rounded-lg border border-indigo-400 dark:border-teal-400 hover:bg-indigo-500 hover:text-white dark:hover:bg-teal-400 transition"
           >
-            {darkMode ? "Light" : "Dark"}
+            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
         </div>
 
-        {/* Mobile Hamburger Button */}
-        <button
-          className="md:hidden"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
+        {/* Mobile Hamburger */}
+        <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
@@ -78,11 +77,13 @@ const Navbar = ({ darkMode, setDarkMode, scrollToSection, refs }) => {
             </button>
           ))}
 
+          {/* Mobile Dark Mode Toggle */}
           <button
             onClick={toggleDarkMode}
-            className="w-full text-left px-3 py-2 rounded-lg border border-indigo-400 dark:border-teal-400 hover:bg-indigo-500 hover:text-white dark:hover:bg-teal-400"
+            className="w-full text-left px-3 py-2 rounded-lg border border-indigo-400 dark:border-teal-400 hover:bg-indigo-500 hover:text-white dark:hover:bg-teal-400 flex items-center justify-start gap-2"
           >
-            {darkMode ? "Light Mode" : "Dark Mode"}
+            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>
           </button>
         </div>
       )}
