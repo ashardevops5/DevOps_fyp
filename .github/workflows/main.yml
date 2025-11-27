@@ -39,7 +39,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             mkdir -p /home/ubuntu/DevOps_fyp/devops_project/build
-            chmod 755 /home/ubuntu/DevOps_fyp/devops_project/build
 
       # 6️⃣ Copy build files to EC2
       - name: Copy build files to EC2
@@ -48,9 +47,8 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "devops_project/build/*"
+          source: "devops_project/build/"
           target: "/home/ubuntu/DevOps_fyp/devops_project/build"
-          strip_components: 1
 
       # 7️⃣ Run deploy script on EC2
       - name: Run deploy script on EC2
