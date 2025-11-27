@@ -20,34 +20,47 @@ jobs:
         with:
           node-version: '20'
 
-      # 3️⃣ Install dependencies
+      # 3️⃣ Cache node_modules (optional, faster builds)
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: devops_project/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('devops_project/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # 4️⃣ Install dependencies
       - name: Install Dependencies
         working-directory: ./devops_project
-        run: npm install
+        run: |
+          echo "Installing dependencies using npm ci..."
+          npm ci
 
-      # 4️⃣ Build React app
+      # 5️⃣ Build React app
       - name: Build React App
         working-directory: ./devops_project
-        run: npm run build
+        run: |
+          echo "Building React app..."
+          npm run build
 
-      # 5️⃣ Setup Docker Buildx
+      # 6️⃣ Setup Docker Buildx
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # 6️⃣ Docker login
+      # 7️⃣ Docker login
       - name: Docker Login
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 7️⃣ Build & Push Docker Image
+      # 8️⃣ Build & Push Docker Image
       - name: Build & Push Docker Image
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest ./devops_project
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest
 
-      # 8️⃣ Deploy to EC2
+      # 9️⃣ Deploy to EC2
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -55,12 +68,12 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # Pull latest Docker image
+            echo "Pulling latest Docker image..."
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest
 
-            # Stop old container if running
+            echo "Stopping old container (if any)..."
             docker stop devops-frontend || true
             docker rm devops-frontend || true
 
-            # Run new container
+            echo "Running new container..."
             docker run -d --name devops-frontend -p 80:80 -p 443:443 ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:latest
