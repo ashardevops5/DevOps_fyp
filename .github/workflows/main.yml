@@ -8,50 +8,19 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      # 3️⃣ Install dependencies
-      - name: Install Dependencies
-        run: npm install
-        working-directory: devops_project
-
-      # 4️⃣ Build frontend
-      - name: Build Frontend
-        run: npm run build
-        working-directory: devops_project
-
-      # 5️⃣ Ensure build folder exists on EC2
-      - name: Ensure target folder exists
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            echo "📁 Creating build folder on EC2 if it doesn't exist..."
-            mkdir -p /home/ubuntu/DevOps_fyp/devops_project/build
-
-      # 6️⃣ Copy build files to EC2
-      - name: Copy build files to EC2
+      - name: Copy source to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "devops_project/build/"
-          target: "/home/ubuntu/DevOps_fyp/devops_project/build"
+          source: "devops_project/"
+          target: "/home/ubuntu/DevOps_fyp/devops_project"
 
-      # 7️⃣ Run deploy script on EC2
       - name: Run deploy script on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -59,6 +28,5 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "🚀 Running deploy.sh on EC2..."
             cd /home/ubuntu/DevOps_fyp/devops_project
             bash deploy.sh
