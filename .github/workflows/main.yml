@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout code
+      # 1️⃣ Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -30,7 +30,7 @@ jobs:
         run: npm run build
         working-directory: devops_project
 
-      # 5️⃣ Ensure target folder exists on EC2
+      # 5️⃣ Ensure build folder exists on EC2
       - name: Ensure target folder exists
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -38,6 +38,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo "📁 Creating build folder on EC2 if it doesn't exist..."
             mkdir -p /home/ubuntu/DevOps_fyp/devops_project/build
 
       # 6️⃣ Copy build files to EC2
@@ -58,5 +59,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo "🚀 Running deploy.sh on EC2..."
             cd /home/ubuntu/DevOps_fyp/devops_project
             bash deploy.sh
