@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: CI/CD Deploy to EC2
 
 on:
   push:
@@ -8,25 +8,65 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
+      # 1️⃣ Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Copy source to EC2
-        uses: appleboy/scp-action@v0.1.7
+      # 2️⃣ Setup Node.js (for local build, optional)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "devops_project/"
-          target: "/home/ubuntu/DevOps_fyp/devops_project"
+          node-version: 18
 
-      - name: Run deploy script on EC2
+      # 3️⃣ SSH to EC2 and deploy
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Navigate to project folder
             cd /home/ubuntu/DevOps_fyp/devops_project
-            bash deploy.sh
+
+            echo "Pulling latest changes..."
+            git reset --hard
+            git pull origin main
+
+            echo "Installing dependencies..."
+            npm install
+
+            echo "Building React frontend..."
+            npm run build
+
+            # Stop existing container if running
+            if [ $(docker ps -q -f name=devopsfyp) ]; then
+              echo "Stopping existing container..."
+              docker stop devopsfyp
+            fi
+
+            # Remove container if exists
+            if [ $(docker ps -a -q -f name=devopsfyp) ]; then
+              echo "Removing old container..."
+              docker rm devopsfyp
+            fi
+
+            # Check if port 8080 is available, else pick next free port
+            PORT=8080
+            while lsof -i :$PORT >/dev/null; do
+              echo "Port $PORT is in use, trying next port..."
+              PORT=$((PORT+1))
+            done
+            echo "Using port $PORT"
+
+            # Build Docker image
+            echo "Building Docker image..."
+            docker build -t react-nginx-app .
+
+            # Run container with selected port
+            echo "Running Docker container..."
+            docker run -d --name devopsfyp -p $PORT:80 react-nginx-app
+
+            echo "✅ Deployment complete! Frontend live on port $PORT"
