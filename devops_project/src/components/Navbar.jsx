@@ -30,7 +30,7 @@ const Navbar = ({ darkMode, setDarkMode, scrollToSection, refs }) => {
           <img
             src="https://www.automation-consultants.com/wp-content/uploads/2020/02/DevOps-icon.png"
             alt="DevOps Logo"
-            className="h-10 w-10 object-contain"
+            className="h-9 w-9 object-contain"
           />
           <h1 className="text-xl sm:text-2xl font-bold text-indigo-600 dark:text-teal-400">
             DevOpsHub
