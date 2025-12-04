@@ -95,7 +95,7 @@ const Contact = forwardRef((props, ref) => {
 
           <div className="text-gray-700 dark:text-gray-300 text-sm">
             <p><strong>Email:</strong> devOps@gmail.com.pk</p>
-            <p><strong>Phone:</strong> +92 300-000-25-55</p>
+            <p><strong>Phone:</strong> +92 300-111-00-55</p>
             <p><strong>Address:</strong> Pakistan</p>
           </div>
         </div>
