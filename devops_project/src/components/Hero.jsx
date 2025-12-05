@@ -16,7 +16,7 @@ const Hero = forwardRef((props, ref) => (
 
     <div className="relative z-10 flex flex-col justify-center items-center text-center
                     opacity-0 animate-fadeIn">
-      <h1 className="text-5xl font-extrabold text-indigo-600 dark:text-teal-400 mb-12 text-center">
+      <h1 className="text-5xl font-extrabold text-indigo-600 dark:text-teal-400 mb-2 text-center">
         Welcome to DevOps Learning Hub
       </h1>
       <p className="text-lg sm:text-2xl max-w-3xl mb-8 text-gray-800 dark:text-gray-200">
