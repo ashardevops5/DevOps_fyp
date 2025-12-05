@@ -26,7 +26,7 @@ const Hero = forwardRef((props, ref) => (
         <button className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 dark:bg-teal-400 dark:hover:bg-teal-500 rounded-md text-white font-semibold transition">
           Get Started
         </button>
-        <button className="px-6 py-3 bg-white text-indigo-600 dark:text-gray-200 rounded-md font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+        <button className="px-6 py-3 bg-white dark:bg-gray-800 text-indigo-600 dark:text-gray-200 rounded-md font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition">
           Learn More
         </button>
       </div>
