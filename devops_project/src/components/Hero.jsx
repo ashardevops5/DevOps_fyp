@@ -53,7 +53,7 @@ const Hero = forwardRef((props, ref) => (
             <li>Increased adoption of cloud-native & automated infrastructures</li>
             <li>High-paying career opportunities in both startups and enterprises</li>
             <li>Integration of AI/ML in DevOps for smarter automation</li>
-            <li>Continuous evolution of tools and practices ensuring long-term relevance</li>
+            <li>Continuous evolution of tools & practices ensuring long-term relevance</li>
           </ul>
         </div>
       </div>
