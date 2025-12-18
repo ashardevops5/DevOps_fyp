@@ -27,13 +27,13 @@ jobs:
           script: |
             echo "===== Fixing Permission Issues ====="
             sudo chown -R ubuntu:ubuntu /home/ubuntu/DevOps_fyp
-            sudo chown -R ubuntu:ubuntu /home/ubuntu/DevOps_fyp/devops_project
+
             git config --global --add safe.directory /home/ubuntu/DevOps_fyp
 
             echo "===== Navigating to Project Folder ====="
             cd /home/ubuntu/DevOps_fyp/devops_project
 
-            echo "===== Cleaning old React build folder ====="
+            echo "===== Cleaning old React build ====="
             sudo rm -rf build
 
             echo "===== Pulling Latest Code ====="
@@ -47,19 +47,19 @@ jobs:
             npm run build
 
             echo "===== Stopping Existing Container ====="
-            if [ $(docker ps -q -f name=devopsfyp) ]; then
+            if [ "$(docker ps -q -f name=devopsfyp)" ]; then
               docker stop devopsfyp
             fi
 
             echo "===== Removing Old Container ====="
-            if [ $(docker ps -a -q -f name=devopsfyp) ]; then
+            if [ "$(docker ps -a -q -f name=devopsfyp)" ]; then
               docker rm devopsfyp
             fi
 
-            echo "===== Checking Free Port ====="
+            echo "===== Finding Free Port ====="
             PORT=8080
             while lsof -i :$PORT >/dev/null; do
-              echo "Port $PORT in use. Trying next..."
+              echo "Port $PORT in use, trying next..."
               PORT=$((PORT+1))
             done
             echo "Using port: $PORT"
