@@ -16,7 +16,6 @@ export default function Navbar({ darkMode, setDarkMode, scrollToSection, refs })
   const [scrolled, setScrolled] = useState(false);
   const [hideOnScroll, setHideOnScroll] = useState(false);
 
-  // Hide/Show navbar on scroll
   useEffect(() => {
     let lastY = window.scrollY;
     const handleScroll = () => {
@@ -39,6 +38,7 @@ export default function Navbar({ darkMode, setDarkMode, scrollToSection, refs })
 
   return (
     <nav
+      id="navbar"  // ✅ Added ID for Hero offset calculation
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 backdrop-blur-xl
       ${hideOnScroll ? "-translate-y-full" : "translate-y-0"}
       ${scrolled ? "shadow-lg bg-white/70 dark:bg-gray-900/60" : "bg-transparent"}`}
