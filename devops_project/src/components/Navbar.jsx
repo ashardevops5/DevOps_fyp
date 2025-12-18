@@ -16,6 +16,7 @@ export default function Navbar({ darkMode, setDarkMode, scrollToSection, refs })
   const [scrolled, setScrolled] = useState(false);
   const [hideOnScroll, setHideOnScroll] = useState(false);
 
+  // Hide/Show navbar on scroll
   useEffect(() => {
     let lastY = window.scrollY;
     const handleScroll = () => {
@@ -24,7 +25,6 @@ export default function Navbar({ darkMode, setDarkMode, scrollToSection, refs })
       setHideOnScroll(currentY > lastY && currentY > 80);
       lastY = currentY;
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -38,14 +38,16 @@ export default function Navbar({ darkMode, setDarkMode, scrollToSection, refs })
 
   return (
     <nav
-      id="navbar"  // ✅ Added ID for Hero offset calculation
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 backdrop-blur-xl
-      ${hideOnScroll ? "-translate-y-full" : "translate-y-0"}
-      ${scrolled ? "shadow-lg bg-white/70 dark:bg-gray-900/60" : "bg-transparent"}`}
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 backdrop-blur-xl ${
+        hideOnScroll ? "-translate-y-full" : "translate-y-0"
+      } ${scrolled ? "shadow-lg bg-white/70 dark:bg-gray-900/60" : "bg-transparent"}`}
     >
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
         {/* Logo */}
-        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => handleClick("heroRef")}>
+        <div
+          className="flex items-center space-x-3 cursor-pointer"
+          onClick={() => handleClick("heroRef")}
+        >
           <img
             src="https://www.automation-consultants.com/wp-content/uploads/2020/02/DevOps-icon.png"
             alt="DevOps Logo"
@@ -68,7 +70,7 @@ export default function Navbar({ darkMode, setDarkMode, scrollToSection, refs })
             </button>
           ))}
 
-          {/* Dark Mode */}
+          {/* Dark Mode Toggle */}
           <button
             aria-label="Toggle Dark Mode"
             onClick={toggleDarkMode}
@@ -114,4 +116,3 @@ export default function Navbar({ darkMode, setDarkMode, scrollToSection, refs })
     </nav>
   );
 }
-
