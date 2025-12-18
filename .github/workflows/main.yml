@@ -9,6 +9,11 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    # 👇 React app subfolder define
+    defaults:
+      run:
+        working-directory: devops_project
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -17,11 +22,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: "npm"
+          cache-dependency-path: devops_project/package-lock.json
 
-      - name: Install dependencies & build React
-        run: |
-          npm ci
-          npm run build
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build React app
+        run: npm run build
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
@@ -30,12 +38,28 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo "===== Navigate to project ====="
             cd /home/ubuntu/DevOps_fyp/devops_project
+
+            echo "===== Pull latest code ====="
+            git reset --hard
             git pull origin main
 
+            echo "===== Stop old container (safe) ====="
             docker stop devopsfyp || true
             docker rm devopsfyp || true
-            docker image prune -af
 
+            echo "===== Cleanup old images (safe) ====="
+            docker image prune -f
+
+            echo "===== Build Docker image ====="
             docker build -t react-nginx-app .
-            docker run -d --name devopsfyp -p 80:80 react-nginx-app
+
+            echo "===== Run container ====="
+            docker run -d \
+              --name devopsfyp \
+              --restart unless-stopped \
+              -p 80:80 \
+              react-nginx-app
+
+            echo "🎉 Deployment Successful"
