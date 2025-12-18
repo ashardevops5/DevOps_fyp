@@ -6,13 +6,8 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-
-    # 👇 React app subfolder define
-    defaults:
-      run:
-        working-directory: devops_project
 
     steps:
       - name: Checkout code
@@ -22,14 +17,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: "npm"
-          cache-dependency-path: devops_project/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build React app
-        run: npm run build
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
@@ -38,28 +25,49 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "===== Navigate to project ====="
+            echo "===== Fixing Permission Issues ====="
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/DevOps_fyp
+
+            git config --global --add safe.directory /home/ubuntu/DevOps_fyp
+
+            echo "===== Navigating to Project Folder ====="
             cd /home/ubuntu/DevOps_fyp/devops_project
 
-            echo "===== Pull latest code ====="
+            echo "===== Cleaning old React build ====="
+            sudo rm -rf build
+
+            echo "===== Pulling Latest Code ====="
             git reset --hard
             git pull origin main
 
-            echo "===== Stop old container (safe) ====="
-            docker stop devopsfyp || true
-            docker rm devopsfyp || true
+            echo "===== Installing Dependencies ====="
+            npm install
 
-            echo "===== Cleanup old images (safe) ====="
-            docker image prune -f
+            echo "===== Building React App ====="
+            npm run build
 
-            echo "===== Build Docker image ====="
+            echo "===== Stopping Existing Container ====="
+            if [ "$(docker ps -q -f name=devopsfyp)" ]; then
+              docker stop devopsfyp
+            fi
+
+            echo "===== Removing Old Container ====="
+            if [ "$(docker ps -a -q -f name=devopsfyp)" ]; then
+              docker rm devopsfyp
+            fi
+
+            echo "===== Finding Free Port ====="
+            PORT=8080
+            while lsof -i :$PORT >/dev/null; do
+              echo "Port $PORT in use, trying next..."
+              PORT=$((PORT+1))
+            done
+            echo "Using port: $PORT"
+
+            echo "===== Building Docker Image ====="
             docker build -t react-nginx-app .
 
-            echo "===== Run container ====="
-            docker run -d \
-              --name devopsfyp \
-              --restart unless-stopped \
-              -p 80:80 \
-              react-nginx-app
+            echo "===== Running New Container ====="
+            docker run -d --name devopsfyp -p $PORT:80 react-nginx-app
 
-            echo "🎉 Deployment Successful"
+            echo "🎉 Deployment complete! Live on port $PORT"
