@@ -114,3 +114,4 @@ export default function Navbar({ darkMode, setDarkMode, scrollToSection, refs })
     </nav>
   );
 }
+
