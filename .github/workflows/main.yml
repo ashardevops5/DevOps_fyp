@@ -30,27 +30,12 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "===== Fix Permissions ====="
-            sudo chown -R ubuntu:ubuntu /home/ubuntu/DevOps_fyp
-            sudo chown -R ubuntu:ubuntu /home/ubuntu/DevOps_fyp/devops_project
-            git config --global --add safe.directory /home/ubuntu/DevOps_fyp
-
-            echo "===== Navigate to Project Folder ====="
             cd /home/ubuntu/DevOps_fyp/devops_project
-
-            echo "===== Pull Latest Code ====="
-            git reset --hard
             git pull origin main
 
-            echo "===== Stop & Remove Old Container ====="
             docker stop devopsfyp || true
             docker rm devopsfyp || true
             docker image prune -af
 
-            echo "===== Build Docker Image ====="
             docker build -t react-nginx-app .
-
-            echo "===== Run Docker Container ====="
             docker run -d --name devopsfyp -p 80:80 react-nginx-app
-
-            echo "🎉 Deployment complete!"
