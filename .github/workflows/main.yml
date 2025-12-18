@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,6 +18,11 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install dependencies & build React
+        run: |
+          npm ci
+          npm run build
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -25,49 +30,27 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "===== Fixing Permission Issues ====="
+            echo "===== Fix Permissions ====="
             sudo chown -R ubuntu:ubuntu /home/ubuntu/DevOps_fyp
             sudo chown -R ubuntu:ubuntu /home/ubuntu/DevOps_fyp/devops_project
             git config --global --add safe.directory /home/ubuntu/DevOps_fyp
 
-            echo "===== Navigating to Project Folder ====="
+            echo "===== Navigate to Project Folder ====="
             cd /home/ubuntu/DevOps_fyp/devops_project
 
-            echo "===== Cleaning old React build folder ====="
-            sudo rm -rf build
-
-            echo "===== Pulling Latest Code ====="
+            echo "===== Pull Latest Code ====="
             git reset --hard
             git pull origin main
 
-            echo "===== Installing Dependencies ====="
-            npm install
+            echo "===== Stop & Remove Old Container ====="
+            docker stop devopsfyp || true
+            docker rm devopsfyp || true
+            docker image prune -af
 
-            echo "===== Building React App ====="
-            npm run build
-
-            echo "===== Stopping Existing Container ====="
-            if [ $(docker ps -q -f name=devopsfyp) ]; then
-              docker stop devopsfyp
-            fi
-
-            echo "===== Removing Old Container ====="
-            if [ $(docker ps -a -q -f name=devopsfyp) ]; then
-              docker rm devopsfyp
-            fi
-
-            echo "===== Checking Free Port ====="
-            PORT=8080
-            while lsof -i :$PORT >/dev/null; do
-              echo "Port $PORT in use. Trying next..."
-              PORT=$((PORT+1))
-            done
-            echo "Using port: $PORT"
-
-            echo "===== Building Docker Image ====="
+            echo "===== Build Docker Image ====="
             docker build -t react-nginx-app .
 
-            echo "===== Running New Container ====="
-            docker run -d --name devopsfyp -p $PORT:80 react-nginx-app
+            echo "===== Run Docker Container ====="
+            docker run -d --name devopsfyp -p 80:80 react-nginx-app
 
-            echo "🎉 Deployment complete! Live on port $PORT"
+            echo "🎉 Deployment complete!"
